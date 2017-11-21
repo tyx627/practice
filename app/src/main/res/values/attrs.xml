@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- customtitleview 的属性 -->
+    <declare-styleable name="CustomTitleView">
+        <attr format="string" name="leftText"/>
+        <attr format="string" name="middleText"/>
+        <attr format="string" name="rightText"/>
+        <attr format="reference" name="leftImg"/>
+        <attr format="reference" name="middleImg"/>
+        <attr format="reference" name="rightImg"/>
+    </declare-styleable>
+
+</resources>

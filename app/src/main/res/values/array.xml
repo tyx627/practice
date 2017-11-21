@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="practice_ls">
+        <item>@string/practice_1</item>
+        <item>Demo2</item>
+        <item>Demo3</item>
+        <item>Demo4</item>
+        <item>Demo5</item>
+        <item>Demo6</item>
+        <item>Demo7</item>
+        <item>Demo8</item>
+        <item>Demo9</item>
+        <item>Demo10</item>
+    </string-array>
+
+</resources>
