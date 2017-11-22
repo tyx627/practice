@@ -1,6 +1,14 @@
 <resources>
     <string name="app_name">myPractice</string>
 
+    <string name="index">首页</string>
+    <string name="mall">商城</string>
+    <string name="shopping_car">购物车</string>
+    <string name="mine">我的</string>
+
     <string name="no_data">暂无数据</string>
     <string name="practice_1">购物车</string>
+
+    <string name="back">返回</string>
+    <string name="edit">编辑</string>
 </resources>

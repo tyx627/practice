@@ -14,4 +14,11 @@
         <item>Demo10</item>
     </string-array>
 
+    <string-array name="tab_txt">
+        <item>@string/index</item>
+        <item>@string/mall</item>
+        <item>@string/shopping_car</item>
+        <item>@string/mine</item>
+    </string-array>
+
 </resources>

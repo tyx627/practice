@@ -2,6 +2,7 @@ package com.tyx.mypractice.util;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,10 +50,39 @@ public class CustomTitleView extends RelativeLayout {
         String rightText = typedArray.getString(R.styleable.CustomTitleView_rightText);
         int rightImg = typedArray.getResourceId(R.styleable.CustomTitleView_rightImg, 0);
         typedArray.recycle();
+
         View view = LayoutInflater.from(context).inflate(R.layout.title_view_layout, this);
         ButterKnife.bind(view);
 
+        if (!TextUtils.isEmpty(leftText)){
 
+            titleTvLeft.setText(leftText);
+        } else {
+            titleTvLeft.setVisibility(INVISIBLE);
+        }
+        if (!TextUtils.isEmpty(middleText)){
+            titleTvMiddle.setText(middleText);
+        } else {
+            titleTvMiddle.setVisibility(INVISIBLE);
+        }
+        if (!TextUtils.isEmpty(rightText)){
+            titleTvRight.setText(rightText);
+        } else {
+            titleTvRight.setVisibility(INVISIBLE);
+        }
+
+    }
+
+    public void setClickListener(OnClickListener listener){
+        if (null == listener){
+            return;
+        }
+        if (titleTvLeft.getVisibility() == VISIBLE){
+            titleTvLeft.setOnClickListener(listener);
+        }
+        if (titleTvRight.getVisibility() == VISIBLE){
+            titleTvRight.setOnClickListener(listener);
+        }
     }
 
 }
