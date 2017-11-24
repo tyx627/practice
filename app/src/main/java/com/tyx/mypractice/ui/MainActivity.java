@@ -50,8 +50,10 @@ public class MainActivity extends BaseActivity {
             switch (position){
                 // 购物车
                 case 0:
-                    Intent intent = new Intent(mActivity, ShoppingCarPracActivity.class);
-                    mActivity.startActivity(intent);
+                    goActivity(ShoppingCarPracActivity.class);
+                    break;
+                case 1:
+                    goActivity(FallingSnowActivity.class);
                     break;
                 default:
                     break;
@@ -61,6 +63,11 @@ public class MainActivity extends BaseActivity {
 
     public interface ItemClickListener {
         void onClick(int position);
+    }
+
+    private void goActivity(Class mClass){
+        Intent intent = new Intent(mActivity, mClass);
+        mActivity.startActivity(intent);
     }
 
 }

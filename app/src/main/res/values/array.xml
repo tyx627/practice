@@ -3,7 +3,7 @@
 
     <string-array name="practice_ls">
         <item>@string/practice_1</item>
-        <item>Demo2</item>
+        <item>@string/practice_2</item>
         <item>Demo3</item>
         <item>Demo4</item>
         <item>Demo5</item>
