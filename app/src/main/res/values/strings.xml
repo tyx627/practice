@@ -11,4 +11,6 @@
 
     <string name="back">返回</string>
     <string name="edit">编辑</string>
+    <string name="select_all">全选</string>
+    <string name="count">结算</string>
 </resources>
