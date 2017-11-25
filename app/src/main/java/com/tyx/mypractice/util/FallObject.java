@@ -22,6 +22,14 @@ public class FallObject {
     private boolean isSpeedRandom;      // 物体初始下降速度比例是否随机
     private boolean isSizeRandom;       // 物体初始大小比例是否随机
 
+    private int initWindLevel;          // 初始风力等级
+    private float angle;                // 物体下落角度
+    private boolean isWindRandom;       // 物体初始风向和风力大小比例是否随机
+    private boolean isWindChange;       // 物体下落过程中风向和风力是否产生随机变化
+    private static final int defaultWindLevel = 0;      // 默认风力等级
+    private static final int defaultWindSpeed = 10;     // 默认单位风速，物体单位时间内运动的轨迹，即余弦中的斜边
+    private static final float HALF_PI = (float)Math.PI / 2;        // π/2
+
     private  Bitmap bitmap;
     public Builder builder;
 
@@ -52,8 +60,30 @@ public class FallObject {
         initSpeed = builder.initSpeed;
         isSpeedRandom = builder.isSpeedRandom;
         isSizeRandom = builder.isSizeRandom;
+        isWindRandom = builder.isWindRandom;
+        isWindChange = builder.isWindChange;
+        initWindLevel = builder.initWindLevel;
         randomSpeed();
         randomSize();
+        randomWind();
+    }
+
+    /**
+     * 随机风向和风力大小比例，即随机物体初始下落角度
+     */
+    private void randomWind() {
+        if (isWindRandom){
+            angle = (float)((random.nextBoolean()? -1:1) * Math.random() * initWindLevel / 50);
+        } else {
+            angle = (float)initWindLevel / 50;
+        }
+
+        // 限制angle的最大最小值
+        if (angle > HALF_PI){
+            angle = HALF_PI;
+        } else if (angle < -HALF_PI){
+            angle = -HALF_PI;
+        }
     }
 
     private void randomSize() {
@@ -86,6 +116,9 @@ public class FallObject {
         bitmap = builder.bitmap;
         isSpeedRandom = builder.isSpeedRandom;
         isSizeRandom = builder.isSizeRandom;
+        isWindRandom = builder.isWindRandom;
+        isWindChange = builder.isWindChange;
+        initWindLevel = builder.initWindLevel;
     }
 
     public static final class Builder{
@@ -94,12 +127,18 @@ public class FallObject {
 
         private int initSpeed;
         private Bitmap bitmap;
+        private boolean isWindRandom;
+        private boolean isWindChange;
+        private int initWindLevel;
 
         public Builder(Bitmap bitmap){
             this.initSpeed = defaultSpeed;
             this.bitmap = bitmap;
             this.isSpeedRandom = false;
             this.isSizeRandom = false;
+            this.isWindRandom = false;
+            this.isWindChange = false;
+            this.initWindLevel = defaultWindLevel;
         }
 
         public Builder(Drawable drawable){
@@ -107,6 +146,23 @@ public class FallObject {
             this.bitmap = drawableToBitmap(drawable);
             this.isSpeedRandom = false;
             this.isSizeRandom = false;
+            this.isWindRandom = false;
+            this.isWindChange = false;
+            this.initWindLevel = defaultWindLevel;
+        }
+
+        /**
+         * 设置风力等级、方向以及随机因素
+         * @param level 风力等级（绝对值为5时效果会比较好），为正时风从左向右吹（物体向x轴正方向偏移），为负时则相反
+         * @param isWindRandom 物体初始风向和风力大小比例是否随机
+         * @param isWindChange 在物体下落过程中风的风向和风力是否会产生随机变化
+         * @return
+         */
+        public Builder setWind(int level, boolean isWindRandom, boolean isWindChange){
+            this.initWindLevel = level;
+            this.isWindRandom = isWindRandom;
+            this.isWindChange = isWindChange;
+            return this;
         }
 
         /**
@@ -211,9 +267,20 @@ public class FallObject {
      * 移动物体对象
      */
     private void moveObject() {
+        moveX();
         moveY();
-        if (presentY > parentHeight){
+        if (presentY > parentHeight || presentX < -bitmap.getWidth() || presentX > parentWidth + bitmap.getWidth()){
             reset();
+        }
+    }
+
+    /**
+     * x轴上的移动逻辑
+     */
+    private void moveX() {
+        presentX += defaultWindSpeed * Math.sin(angle);
+        if (isWindChange){
+            angle += (float)(random.nextBoolean()? -1:1) * Math.random() * 0.0025;
         }
     }
 
@@ -224,6 +291,7 @@ public class FallObject {
         presentY = -objectHeight;
 //        presentSpeed = initSpeed;
         randomSpeed();
+        randomWind();
     }
 
     /**

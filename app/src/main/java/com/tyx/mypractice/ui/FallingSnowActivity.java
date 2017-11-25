@@ -45,8 +45,9 @@ public class FallingSnowActivity extends BaseActivity {
         // 初始化一个雪球样式的fallObject
         FallObject.Builder builder = new FallObject.Builder(getResources().getDrawable(R.drawable.snow));
         FallObject fallObject = builder
-                .setSpeed(10, true)
+                .setSpeed(5, true)
                 .setSize(50, 50, true)
+                .setWind(5, true, true)
                 .build();
         fallingView.addFallObject(fallObject, 50);  // 添加50个雪球对象
     }
