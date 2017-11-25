@@ -1,4 +1,4 @@
-package com.tyx.mypractice.ui;
+package com.tyx.mypractice.ui.activity;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;

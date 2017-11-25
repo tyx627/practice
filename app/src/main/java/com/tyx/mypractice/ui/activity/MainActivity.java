@@ -1,4 +1,4 @@
-package com.tyx.mypractice.ui;
+package com.tyx.mypractice.ui.activity;
 
 import android.app.Activity;
 import android.content.Intent;

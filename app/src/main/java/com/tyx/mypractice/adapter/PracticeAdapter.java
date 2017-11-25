@@ -7,8 +7,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.tyx.mypractice.R;
-import com.tyx.mypractice.ui.BaseActivity;
-import com.tyx.mypractice.ui.MainActivity;
+import com.tyx.mypractice.ui.activity.BaseActivity;
+import com.tyx.mypractice.ui.activity.MainActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

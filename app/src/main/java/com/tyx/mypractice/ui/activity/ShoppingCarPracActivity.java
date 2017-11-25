@@ -1,4 +1,4 @@
-package com.tyx.mypractice.ui;
+package com.tyx.mypractice.ui.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,6 +12,11 @@ import android.widget.Toast;
 
 import com.tyx.mypractice.R;
 import com.tyx.mypractice.adapter.TabVPAdapter;
+import com.tyx.mypractice.ui.fragment.BaseFragment;
+import com.tyx.mypractice.ui.fragment.IndexFragment;
+import com.tyx.mypractice.ui.fragment.MallFragment;
+import com.tyx.mypractice.ui.fragment.MineFragment;
+import com.tyx.mypractice.ui.fragment.ShoppingCarFragment;
 import com.tyx.mypractice.util.CustomTitleView;
 
 import java.util.ArrayList;

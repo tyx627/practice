@@ -1,4 +1,4 @@
-package com.tyx.mypractice.ui;
+package com.tyx.mypractice.ui.fragment;
 
 import android.content.Context;
 import android.os.Bundle;

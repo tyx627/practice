@@ -4,7 +4,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.tyx.mypractice.ui.BaseFragment;
+import com.tyx.mypractice.ui.fragment.BaseFragment;
 
 import java.util.ArrayList;
 

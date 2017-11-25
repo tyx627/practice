@@ -1,4 +1,4 @@
-package com.tyx.mypractice.ui;
+package com.tyx.mypractice.ui.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
