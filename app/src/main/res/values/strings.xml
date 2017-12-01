@@ -9,9 +9,12 @@
     <string name="no_data">暂无数据</string>
     <string name="practice_1">购物车</string>
     <string name="practice_2">雪花飘落动画</string>
+    <string name="custom_dialog">自定义dialog工具类</string>
 
     <string name="back">返回</string>
     <string name="edit">编辑</string>
     <string name="select_all">全选</string>
     <string name="count">结算</string>
+    <string name="cancle">取消</string>
+    <string name="sure">确定</string>
 </resources>

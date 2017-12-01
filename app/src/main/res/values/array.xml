@@ -4,7 +4,7 @@
     <string-array name="practice_ls">
         <item>@string/practice_1</item>
         <item>@string/practice_2</item>
-        <item>Demo3</item>
+        <item>@string/custom_dialog</item>
         <item>Demo4</item>
         <item>Demo5</item>
         <item>Demo6</item>
