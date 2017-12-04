@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import com.tyx.mypractice.R;
 import com.tyx.mypractice.adapter.PracticeAdapter;
-import com.tyx.mypractice.util.CustomDialog;
+import com.tyx.mypractice.util.view.CustomDialog;
 
 import butterknife.BindView;
 
@@ -60,6 +60,9 @@ public class MainActivity extends BaseActivity implements CustomDialog.DialogCli
                     break;
                 case 2:
                     showDialog();
+                    break;
+                case 3:
+                    goActivity(CustomViewPagerActivity.class);
                     break;
                 default:
                     break;

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.tyx.mypractice.util.CustomTitleView
+    <com.tyx.mypractice.util.view.CustomTitleView
         android:id="@+id/title_view"
         android:layout_width="match_parent"
         android:layout_height="50dp"

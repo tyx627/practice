@@ -10,6 +10,7 @@
     <string name="practice_1">购物车</string>
     <string name="practice_2">雪花飘落动画</string>
     <string name="custom_dialog">自定义dialog工具类</string>
+    <string name="custom_viewpager">自适应高度和禁止滑动的viewpager</string>
 
     <string name="back">返回</string>
     <string name="edit">编辑</string>
@@ -17,4 +18,21 @@
     <string name="count">结算</string>
     <string name="cancle">取消</string>
     <string name="sure">确定</string>
+
+    <!-- 自定义高度自适应viewpager的测试数据 -->
+    <string name="evaluation_ques_1">1、年龄&lt;18或≥35岁</string>
+    <string name="evaluation_ques_2">2、身高≤145cm</string>
+    <string name="evaluation_ques_3">3、体重≤40公斤或≥85公斤</string>
+    <string name="evaluation_ques_4">4、有异常孕产史。（如流产、早产、死胎、死产、难产及手术产、新生儿死亡、新生儿溶血性黄疸、先天缺陷或遗传性疾病）</string>
+    <string name="evaluation_ques_5">5、糖尿病</string>
+    <string name="evaluation_ques_6">6、骨盆狭窄</string>
+    <string name="evaluation_ques_7">7、胎位不正</string>
+    <string name="evaluation_ques_8">8、早产（28周&lt;孕周&lt;37周）或过期妊娠（孕周≥42周）</string>
+    <string name="evaluation_ques_9">9、妊娠期高血压</string>
+    <string name="evaluation_ques_10">10、羊水过多或过少</string>
+    <string name="evaluation_ques_11">11、母婴ABO血型不合</string>
+    <string name="evaluation_ques_12">12、孕期出血（如前置胎盘、胎盘早剥等）</string>
+    <string name="evaluation_ques_13">13、双胎或多胎</string>
+    <string name="evaluation_ques_14">14、瘢痕子宫</string>
+    <string name="evaluation_ques_15">15、怀孕早期接触放射线、化学毒物或病毒感染等</string>
 </resources>

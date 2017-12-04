@@ -17,7 +17,7 @@ import com.tyx.mypractice.ui.fragment.IndexFragment;
 import com.tyx.mypractice.ui.fragment.MallFragment;
 import com.tyx.mypractice.ui.fragment.MineFragment;
 import com.tyx.mypractice.ui.fragment.ShoppingCarFragment;
-import com.tyx.mypractice.util.CustomTitleView;
+import com.tyx.mypractice.util.view.CustomTitleView;
 
 import java.util.ArrayList;
 

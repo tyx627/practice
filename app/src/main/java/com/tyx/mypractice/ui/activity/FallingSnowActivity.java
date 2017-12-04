@@ -8,8 +8,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import com.tyx.mypractice.R;
-import com.tyx.mypractice.util.FallObject;
-import com.tyx.mypractice.util.FallingView;
+import com.tyx.mypractice.util.view.FallObject;
+import com.tyx.mypractice.util.view.FallingView;
 
 import butterknife.BindView;
 

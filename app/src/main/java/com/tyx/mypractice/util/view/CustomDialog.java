@@ -1,4 +1,4 @@
-package com.tyx.mypractice.util;
+package com.tyx.mypractice.util.view;
 
 import android.app.Dialog;
 import android.content.Context;

@@ -1,4 +1,4 @@
-package com.tyx.mypractice.util;
+package com.tyx.mypractice.util.view;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -8,7 +8,7 @@ import android.graphics.drawable.Drawable;
 
 import java.util.Random;
 
-import static com.tyx.mypractice.util.FallObject.Builder.changeBitmapSize;
+import static com.tyx.mypractice.util.view.FallObject.Builder.changeBitmapSize;
 
 /**
  * 雪花飘落动画中，对下落物体进行封装，builder设计模式

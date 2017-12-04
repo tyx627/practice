@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimary">
 
-    <com.tyx.mypractice.util.FallingView
+    <com.tyx.mypractice.util.view.FallingView
         android:id="@+id/falling_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

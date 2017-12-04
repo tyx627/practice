@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- 主页目录的内容 -->
     <string-array name="practice_ls">
         <item>@string/practice_1</item>
         <item>@string/practice_2</item>
         <item>@string/custom_dialog</item>
-        <item>Demo4</item>
+        <item>@string/custom_viewpager</item>
         <item>Demo5</item>
         <item>Demo6</item>
         <item>Demo7</item>
@@ -14,11 +15,31 @@
         <item>Demo10</item>
     </string-array>
 
+    <!-- 底部tab的标题 -->
     <string-array name="tab_txt">
         <item>@string/index</item>
         <item>@string/mall</item>
         <item>@string/shopping_car</item>
         <item>@string/mine</item>
+    </string-array>
+
+    <!-- 自定义自适应高度viewpager的测试数据 -->
+    <string-array name="vp_questions">
+        <item>@string/evaluation_ques_1</item>
+        <item>@string/evaluation_ques_2</item>
+        <item>@string/evaluation_ques_3</item>
+        <item>@string/evaluation_ques_4</item>
+        <item>@string/evaluation_ques_5</item>
+        <item>@string/evaluation_ques_6</item>
+        <item>@string/evaluation_ques_7</item>
+        <item>@string/evaluation_ques_8</item>
+        <item>@string/evaluation_ques_9</item>
+        <item>@string/evaluation_ques_10</item>
+        <item>@string/evaluation_ques_11</item>
+        <item>@string/evaluation_ques_12</item>
+        <item>@string/evaluation_ques_13</item>
+        <item>@string/evaluation_ques_14</item>
+        <item>@string/evaluation_ques_15</item>
     </string-array>
 
 </resources>
