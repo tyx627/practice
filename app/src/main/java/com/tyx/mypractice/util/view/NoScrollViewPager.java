@@ -40,4 +40,9 @@ public class NoScrollViewPager extends ViewPager {
         }
     }
 
+    public void setNoScroll(boolean noScroll){
+
+        this.noScroll = noScroll;
+    }
+
 }

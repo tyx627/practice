@@ -4,13 +4,11 @@ import android.content.Context;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.tyx.mypractice.R;
 import com.tyx.mypractice.ui.activity.CustomViewPagerActivity;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 /**
  * Created by Administrator on 2017/12/4 0004.
@@ -18,34 +16,39 @@ import butterknife.ButterKnife;
 
 public class CustomVPPager implements View.OnClickListener {
 
-    @BindView(R.id.tv_content)
-    TextView tvContent;
-    @BindView(R.id.rtv_yes)
-    TextView rtvYes;
-    @BindView(R.id.rtv_no)
-    TextView rtvNo;
+//    @BindView(R.id.tv_content)
+    private TextView tvContent;
+//    @BindView(R.id.rtv_yes)
+    private TextView rtvYes;
+//    @BindView(R.id.rtv_no)
+    private TextView rtvNo;
 
     private Context mContext;
     private String mContent;
     private int index;
     private ViewPager vp;
     private CustomViewPagerActivity.PagerCallBack callBack;
+    public View rootView;
 
     public CustomVPPager(Context context, String content, int index, ViewPager vp) {
         this.mContext = context;
         this.mContent = content;
         this.index = index;
         this.vp = vp;
-        initView();
+//        initView();
     }
 
-    private void initView() {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.view_custom_viewpager, null);
-        ButterKnife.bind(mContext, view);
+    public View initView(ViewGroup container) {
+        rootView = LayoutInflater.from(mContext).inflate(R.layout.view_custom_viewpager, container, false);
+//        ButterKnife.bind(mContext, rootView);
+        tvContent = (TextView)rootView.findViewById(R.id.tv_content);
+        rtvYes = (TextView)rootView.findViewById(R.id.rtv_yes);
+        rtvNo = (TextView)rootView.findViewById(R.id.rtv_no);
 
         tvContent.setText(mContent);
         rtvYes.setOnClickListener(this);
         rtvNo.setOnClickListener(this);
+        return rootView;
     }
 
     @Override
@@ -61,7 +64,7 @@ public class CustomVPPager implements View.OnClickListener {
         }
     }
 
-    public void setClaaBack(CustomViewPagerActivity.PagerCallBack callBack){
+    public void setCallBack(CustomViewPagerActivity.PagerCallBack callBack){
         this.callBack = callBack;
     }
 }
