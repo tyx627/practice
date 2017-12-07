@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import java.util.HashMap;
 
@@ -43,9 +43,9 @@ public class AdaptiveHeightViewPager extends NoScrollViewPager {
     public void resetHeight(int currentIndex){
         this.currentIndex = currentIndex;
         if (mChildrenViews.size() > currentIndex){
-            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) getLayoutParams();
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) getLayoutParams();
             if (params == null){
-                params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height);
+                params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height);
             } else {
                 params.height = height;
             }

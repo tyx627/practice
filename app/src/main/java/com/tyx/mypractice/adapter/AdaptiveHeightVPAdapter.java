@@ -1,11 +1,10 @@
 package com.tyx.mypractice.adapter;
 
-import android.support.v4.view.PagerAdapter;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 
-import com.tyx.mypractice.util.view.CustomVPPager;
+import com.tyx.mypractice.ui.fragment.CustomVPFragment;
 
 import java.util.ArrayList;
 
@@ -14,33 +13,22 @@ import java.util.ArrayList;
  * Created by tyx on 2017/12/6 0006.
  */
 
-public class AdaptiveHeightVPAdapter extends PagerAdapter {
+public class AdaptiveHeightVPAdapter extends FragmentPagerAdapter {
 
-    private ArrayList<CustomVPPager> pagers;
+    private ArrayList<CustomVPFragment> pagers;
 
-    public AdaptiveHeightVPAdapter(ArrayList<CustomVPPager> pagers){
+    public AdaptiveHeightVPAdapter(FragmentManager fm, ArrayList<CustomVPFragment> pagers) {
+        super(fm);
         this.pagers = pagers;
     }
 
     @Override
-    public Object instantiateItem(ViewGroup container, int position) {
-        container.addView(pagers.get(position).initView(container));
-        return pagers.get(position).rootView;
+    public Fragment getItem(int position) {
+        return null == pagers? null:pagers.get(position);
     }
 
     @Override
     public int getCount() {
-        return null == pagers? 0:pagers.size();
-    }
-
-    @Override
-    public boolean isViewFromObject(View view, Object object) {
-        Log.d("======", (view == object) + "");
-        return view == object;
-    }
-
-    @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {
-        container.removeView(pagers.get(position).rootView);
+        return null == pagers? 0 : pagers.size();
     }
 }

@@ -51,7 +51,8 @@
             android:gravity="center"
             android:text="是"
             android:textSize="16sp"
-            android:background="@drawable/bg_vp_tv_yes" />
+            android:background="@drawable/bg_vp_tv_yes"
+            android:clickable="true"/>
 
         <TextView
             android:id="@+id/rtv_no"
@@ -63,7 +64,8 @@
             android:gravity="center"
             android:text="否"
             android:textSize="16sp"
-            android:background="@drawable/bg_vp_tv_no" />
+            android:background="@drawable/bg_vp_tv_no"
+            android:clickable="true"/>
 
         <!--<com.ruffian.library.RTextView-->
             <!--android:id="@+id/rtv_yes"-->

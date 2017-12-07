@@ -1,7 +1,9 @@
 package com.tyx.mypractice.util.view;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +16,7 @@ import com.tyx.mypractice.ui.activity.CustomViewPagerActivity;
  * Created by Administrator on 2017/12/4 0004.
  */
 
-public class CustomVPPager implements View.OnClickListener {
+public class CustomVPPager extends View implements View.OnClickListener {
 
 //    @BindView(R.id.tv_content)
     private TextView tvContent;
@@ -30,13 +32,21 @@ public class CustomVPPager implements View.OnClickListener {
     private CustomViewPagerActivity.PagerCallBack callBack;
     public View rootView;
 
-    public CustomVPPager(Context context, String content, int index, ViewPager vp) {
-        this.mContext = context;
-        this.mContent = content;
-        this.index = index;
-        this.vp = vp;
-//        initView();
+    public CustomVPPager(Context context) {
+        super(context);
     }
+
+    public CustomVPPager(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+//    public CustomVPPager(Context context, String content, int index, ViewPager vp) {
+//        this.mContext = context;
+//        this.mContent = content;
+//        this.index = index;
+//        this.vp = vp;
+////        initView();
+//    }
 
     public View initView(ViewGroup container) {
         rootView = LayoutInflater.from(mContext).inflate(R.layout.view_custom_viewpager, container, false);

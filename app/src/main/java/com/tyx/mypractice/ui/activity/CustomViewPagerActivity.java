@@ -2,13 +2,14 @@ package com.tyx.mypractice.ui.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.tyx.mypractice.R;
 import com.tyx.mypractice.adapter.AdaptiveHeightVPAdapter;
+import com.tyx.mypractice.ui.fragment.CustomVPFragment;
 import com.tyx.mypractice.util.view.AdaptiveHeightViewPager;
-import com.tyx.mypractice.util.view.CustomVPPager;
 
 import java.util.ArrayList;
 
@@ -25,6 +26,7 @@ public class CustomViewPagerActivity extends BaseActivity {
     Toolbar toolBar;
     @BindView(R.id.view_pager)
     AdaptiveHeightViewPager viewPager;
+    private String[] questions;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -34,15 +36,20 @@ public class CustomViewPagerActivity extends BaseActivity {
     }
 
     private void initData() {
-        String[] questions = getResources().getStringArray(R.array.vp_questions);
-        ArrayList<CustomVPPager> pagers = new ArrayList<>();
+        questions = getResources().getStringArray(R.array.vp_questions);
+        ArrayList<CustomVPFragment> fragments = new ArrayList<>();
         if (null != questions && questions.length > 0) {
             for (int i = 0; i < questions.length; i++) {
-                CustomVPPager pager = new CustomVPPager(this, questions[i], i, viewPager);
-                pager.setCallBack(callBack);
-                pagers.add(pager);
+                CustomVPFragment fragment = new CustomVPFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("question", questions[i]);
+                bundle.putInt("index", i);
+                fragment.setArguments(bundle);
+                fragment.setCallBack(callBack);
+                fragment.setViewPager(viewPager);
+                fragments.add(fragment);
             }
-            AdaptiveHeightVPAdapter mAdapter = new AdaptiveHeightVPAdapter(pagers);
+            AdaptiveHeightVPAdapter mAdapter = new AdaptiveHeightVPAdapter(getSupportFragmentManager(), fragments);
             viewPager.setAdapter(mAdapter);
         }
     }
@@ -56,6 +63,22 @@ public class CustomViewPagerActivity extends BaseActivity {
         });
         // 设置不可手势左右滑动
         viewPager.setNoScroll(true);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                viewPager.resetHeight(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
     }
 
     @Override
@@ -66,7 +89,11 @@ public class CustomViewPagerActivity extends BaseActivity {
     private PagerCallBack callBack = new PagerCallBack() {
         @Override
         public void click(int index) {
-
+            if (index < questions.length - 1) {
+                viewPager.setCurrentItem(index + 1);
+            } else {
+                finish();
+            }
         }
     };
 
