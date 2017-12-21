@@ -64,6 +64,9 @@ public class MainActivity extends BaseActivity implements CustomDialog.DialogCli
                 case 3:
                     goActivity(CustomViewPagerActivity.class);
                     break;
+                case 4:
+                    goActivity(ArcAnimateActivity.class);
+                    break;
                 default:
                     break;
             }

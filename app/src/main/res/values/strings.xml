@@ -11,6 +11,7 @@
     <string name="practice_2">雪花飘落动画</string>
     <string name="custom_dialog">自定义dialog工具类</string>
     <string name="custom_viewpager">自适应高度和禁止滑动的viewpager</string>
+    <string name="arc_animate">扇形动画</string>
 
     <string name="back">返回</string>
     <string name="edit">编辑</string>
