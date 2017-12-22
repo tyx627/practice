@@ -7,11 +7,8 @@ import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.graphics.Shader;
-import android.graphics.Xfermode;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -29,6 +26,8 @@ public class ArcAnimateView extends View {
     private Paint paint;
     private int size;
     private int width;
+    private float angle;
+    private boolean showArc;
 
     public ArcAnimateView(Context context) {
         super(context);
@@ -48,8 +47,22 @@ public class ArcAnimateView extends View {
             Bitmap bitmap = BitmapFactory.decodeResource(getResources(), imgResId);
             shader = new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
         }
+        showArc = true;
+        angle = -90;
         invalidate();
     }
+
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            if (angle < 270){
+                angle += 10;
+                invalidate();
+            } else {
+                removeCallbacks(runnable);
+            }
+        }
+    };
 
     public void setImageRes(int resId){
         imgResId = resId;
@@ -68,23 +81,31 @@ public class ArcAnimateView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        int saved = canvas.saveLayer(null, null, Canvas.ALL_SAVE_FLAG);
-        Xfermode xfermode = new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER);
-        paint.setShader(shader);
-        if (size == 0){
-            size = this.getWidth();
+        if (showArc) {
+//        int saved = canvas.saveLayer(null, null, Canvas.ALL_SAVE_FLAG);
+//        Xfermode xfermode = new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER);
+//        paint.setShader(shader);
+            if (size == 0) {
+                size = this.getWidth();
+            }
+//        canvas.drawCircle(size/2, size/2, size/2, paint);
+            Paint paint1 = new Paint(Paint.ANTI_ALIAS_FLAG);
+//        paint1.setXfermode(xfermode);
+            paint1.setColor(Color.GREEN);
+            paint1.setStyle(Paint.Style.FILL);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                canvas.drawArc(0, 0, size, size, -90, angle + 90, true, paint1);
+            } else {
+                RectF rectF = new RectF(0, 0, size, size);
+                canvas.drawArc(rectF, -90, angle + 90, true, paint1);
+            }
+//        canvas.restoreToCount(saved);
+            if (angle >= 270) {
+                showArc = false;
+                invalidate();
+            }
+            postDelayed(runnable, 50);
         }
-        canvas.drawCircle(size/2, size/2, size/2, paint);
-        Paint paint1 = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint1.setXfermode(xfermode);
-        paint1.setColor(Color.GREEN);
-        paint1.setStyle(Paint.Style.FILL);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            canvas.drawArc(0, 0, size, size, -150, 330, true, paint1);
-        } else {
-            RectF rectF = new RectF(0, 0, size, size);
-            canvas.drawArc(rectF, -150, 330, true, paint1);
-        }
-        canvas.restoreToCount(saved);
     }
 }
