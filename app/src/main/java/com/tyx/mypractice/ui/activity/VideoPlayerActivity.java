@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import com.tyx.mypractice.R;
+import com.tyx.mypractice.util.view.MyVideoPlayer;
 
 import butterknife.BindView;
 import cn.jzvd.JZVideoPlayerStandard;
@@ -16,7 +17,7 @@ import cn.jzvd.JZVideoPlayerStandard;
 public class VideoPlayerActivity extends BaseActivity {
 
     @BindView(R.id.player)
-    JZVideoPlayerStandard player;
+    MyVideoPlayer player;
 
     @Override
     public int getLayoutResId() {

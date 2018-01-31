@@ -2,6 +2,7 @@ package com.tyx.mypractice.util.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -26,6 +27,8 @@ public class MyVideoPlayer extends JZVideoPlayerStandard {
     @Override
     public void init(Context context) {
         super.init(context);
+        JZVideoPlayerStandard.SAVE_PROGRESS = false;
+        Log.d("init", "init");
     }
 
     // 这是控件里所有控件的onClick响应函数，比如监听开始按钮的点击，全屏按钮的点击，空白的点击，retry按钮的点击，等。如果你想拦截这些点击的响应或者继承这些点击的响应，那么复写此函数
@@ -62,6 +65,7 @@ public class MyVideoPlayer extends JZVideoPlayerStandard {
     @Override
     public void onStatePause() {
         super.onStatePause();
+        Log.d("onStatePause", "onStatePause");
     }
 
     // 进入错误状态
@@ -98,5 +102,27 @@ public class MyVideoPlayer extends JZVideoPlayerStandard {
     @Override
     public void startWindowTiny() {
         super.startWindowTiny();
+    }
+
+    private long sumTime = 0;
+
+    @Override
+    public void setProgressAndText(int progress, long position, long duration) {
+        super.setProgressAndText(progress, position, duration);
+        sumTime += 300;
+        Log.d("setProgressAndText", "position == " + position + "            sumTime == " + sumTime + "         duration == " + duration);
+    }
+
+    @Override
+    public void onCompletion() {
+        super.onCompletion();
+        Log.d("onCompletion", "onCompletion");
+    }
+
+    // 自动播放完成
+    @Override
+    public void onAutoCompletion() {
+        super.onAutoCompletion();
+        Log.d("onAutoCompletion", "onAutoCompletion");
     }
 }
