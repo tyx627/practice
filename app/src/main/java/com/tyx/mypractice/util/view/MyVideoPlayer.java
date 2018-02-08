@@ -8,6 +8,7 @@ import android.view.View;
 
 import cn.jzvd.JZVideoPlayerStandard;
 
+
 /**
  * 视频播放器
  * Created by tyx on 2018/1/19 0019.
