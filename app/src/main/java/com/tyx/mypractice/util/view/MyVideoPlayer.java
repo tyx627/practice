@@ -106,6 +106,7 @@ public class MyVideoPlayer extends JZVideoPlayerStandard {
     @Override
     public void startWindowFullscreen() {
         super.startWindowFullscreen();
+        backButton.setVisibility(GONE);
         Log.d("MyVideoPlayer", "startWindowFullscreen");
     }
 
