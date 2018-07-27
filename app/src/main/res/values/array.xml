@@ -9,8 +9,8 @@
         <item>@string/custom_viewpager</item>
         <item>@string/arc_animate</item>
         <item>@string/video_player</item>
-        <item>Demo7</item>
-        <item>Demo8</item>
+        <item>@string/bluetooth_scan_view</item>
+        <item>@string/custom_chart</item>
         <item>Demo9</item>
         <item>Demo10</item>
     </string-array>

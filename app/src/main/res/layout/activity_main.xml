@@ -22,11 +22,4 @@
         android:layout_below="@+id/tv_title"
         android:layout_above="@+id/scan_view"/>
 
-    <com.tyx.mypractice.util.view.BlueToothScanViewNew
-        android:id="@+id/scan_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:layout_alignParentBottom="true"/>
-
 </RelativeLayout>

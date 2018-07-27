@@ -1,5 +1,7 @@
 package com.tyx.mypractice.util.view;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -8,9 +10,7 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
-import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
@@ -141,12 +141,19 @@ public class BlueToothScanViewNew extends RelativeLayout {
 //        isScanning = true;
 //        removeCallbacks(scanR);
 //        postDelayed(scanR, 100);
-        Animation animation = new RotateAnimation(0, 360f, radius, radius);
-        animation.setInterpolator(new LinearInterpolator());
-        animation.setDuration(1000);
-        animation.setRepeatMode(Animation.RESTART);
-        animation.setRepeatCount(Animation.INFINITE);
-        ivScan.startAnimation(animation);
+//        Animation animation = new RotateAnimation(0, 360f, radius, radius);
+//        animation.setInterpolator(new LinearInterpolator());
+//        animation.setDuration(1000);
+//        animation.setRepeatMode(Animation.RESTART);
+//        animation.setRepeatCount(Animation.INFINITE);
+//        ivScan.startAnimation(animation);
+
+        ObjectAnimator animator = ObjectAnimator.ofFloat(ivScan, "rotation", 0f, 360000f);
+        animator.setDuration(1800000);
+        animator.setRepeatMode(ValueAnimator.RESTART);
+        animator.setRepeatCount(ValueAnimator.INFINITE);
+        animator.setInterpolator(new LinearInterpolator());
+        animator.start();
     }
 
     /**

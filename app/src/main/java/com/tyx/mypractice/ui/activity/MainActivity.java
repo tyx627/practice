@@ -70,6 +70,9 @@ public class MainActivity extends BaseActivity implements CustomDialog.DialogCli
                 case 5:
                     goActivity(VideoPlayerActivity.class);
                     break;
+                case 6:
+                    goActivity(BlueToothScanActivity.class);
+                    break;
                 default:
                     break;
             }

@@ -13,6 +13,8 @@
     <string name="custom_viewpager">自适应高度和禁止滑动的viewpager</string>
     <string name="arc_animate">扇形动画</string>
     <string name="video_player">视频播放器</string>
+    <string name="bluetooth_scan_view">搜索蓝牙动画</string>
+    <string name="custom_chart">曲线图</string>
 
     <string name="back">返回</string>
     <string name="edit">编辑</string>

@@ -30,6 +30,9 @@
         <activity android:name=".ui.activity.VideoPlayerActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait"></activity>
+        <activity android:name=".ui.activity.BlueToothScanActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:screenOrientation="portrait"></activity>
 
     </application>
 
