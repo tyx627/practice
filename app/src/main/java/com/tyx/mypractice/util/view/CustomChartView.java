@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.View;
 
 import com.tyx.mypractice.R;
@@ -20,6 +21,12 @@ public class CustomChartView extends View {
     private Paint linePaintN;   // 画线的大小有差异，这是稍微细一点的画笔
     private Paint linePaintT;   // 用于写文字刻度的笔
     private Paint linePaintL;   // 用于画胎心曲线的笔
+
+    private int screenWidth;    // 屏幕宽度
+    private int viewHeight;   // 控件高度
+    private int oneMinWidth;    // 1分钟的宽度
+    private int twentySecWidth; // 20秒的宽度
+
 
     public CustomChartView(Context context) {
         this(context, null);
@@ -38,6 +45,10 @@ public class CustomChartView extends View {
     // 初始化一些数据，例如画笔之类的
     private void initView() {
         initPaint();
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+        screenWidth = dm.widthPixels;
+        oneMinWidth = screenWidth / 4;  // 一屏幕显示4分钟数据
+        twentySecWidth = oneMinWidth / 3;   // 一分钟数据分三个小格
     }
 
     private void initPaint() {
@@ -66,6 +77,9 @@ public class CustomChartView extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        viewHeight = heightMeasureSpec;
+        setMeasuredDimension(screenWidth, heightMeasureSpec);
+
     }
 
     @Override
