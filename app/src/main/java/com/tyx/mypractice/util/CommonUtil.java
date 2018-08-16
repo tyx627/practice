@@ -43,7 +43,7 @@ public class CommonUtil {
      */
     public static int sp2px(Context context, int sp){
         float fontScale = context.getResources().getDisplayMetrics().scaledDensity;
-        return (int) (sp/fontScale + 0.5f);
+        return (int) (sp * fontScale + 0.5f);
     }
 
 }

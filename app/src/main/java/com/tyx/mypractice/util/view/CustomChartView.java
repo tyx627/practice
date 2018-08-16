@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -26,7 +27,9 @@ public class CustomChartView extends View {
     private Paint linePaintT;   // 用于写文字刻度的笔
     private Paint linePaintL;   // 用于画胎心曲线的笔
     private Paint greenAreaPaint;   // 用于画绿色区域的笔
+    private Paint whitePaint;   // 用于画坐标文字背景的画笔，白色背景
 
+    private Rect bgRect;    // 整个view的背景，白色的矩形
     private int screenWidth;    // 屏幕宽度
     private int viewHeight;   // 控件高度
     private float oneMinWidth;    // 1分钟的宽度
@@ -37,6 +40,13 @@ public class CustomChartView extends View {
     private float tocoLatticeHeight;    // 宫缩曲线区域，垂直方向一个格子的高度
     private float tocoStartY;     // 宫缩曲线区域垂直方向起始位置
     private float fetalYPointHeight;  // 胎心区域垂直方向一个点的高度
+    private int textSize; // 文字大小
+    private int fetalMax = 210; // 胎心最大值
+    private int tocoMax = 100;  // 胎心最小值
+    private int startTime = 1;  // 时间坐标的开始值
+    private Paint.FontMetrics fontMetrics;  // 字体的宽高等信息的类
+    private float coorWidth;    // 坐标文字的宽度
+    private float coorHeight;    // 坐标文字的高度
 
     public CustomChartView(Context context) {
         this(context, null);
@@ -54,11 +64,17 @@ public class CustomChartView extends View {
 
     // 初始化一些数据，例如画笔之类的
     private void initView() {
-        initPaint();
+        textSize = CommonUtil.sp2px(mContext, 12);
         DisplayMetrics dm = getResources().getDisplayMetrics();
         screenWidth = dm.widthPixels;
         oneMinWidth = screenWidth / 4;  // 一屏幕显示4分钟数据
         twentySecWidth = oneMinWidth / 3;   // 一分钟数据分三个小格
+        initPaint();
+        // 获取坐标文字的长宽
+        fontMetrics = linePaintT.getFontMetrics();
+        String str = String.valueOf(fetalMax);
+        coorWidth = linePaintT.measureText(str);
+        coorHeight = getTextHeight(linePaintT, str);
     }
 
     private void initPaint() {
@@ -75,8 +91,8 @@ public class CustomChartView extends View {
         // 写刻度的画笔
         linePaintT = new Paint(Paint.ANTI_ALIAS_FLAG);
         linePaintT.setColor(mContext.getResources().getColor(R.color.color_333));
-        linePaintT.setStrokeWidth(CommonUtil.dp2px(mContext, 1));
-        linePaintT.setTextSize(14);
+        linePaintT.setTextSize(textSize);
+        linePaintT.setTextAlign(Paint.Align.CENTER);
 
         // 画曲线的画笔
         linePaintL = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -87,6 +103,11 @@ public class CustomChartView extends View {
         greenAreaPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         greenAreaPaint.setColor(mContext.getResources().getColor(R.color.color_336DE016));
         greenAreaPaint.setStyle(Paint.Style.FILL);
+
+        // 画坐标文字背景的画笔，白色背景
+        whitePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        whitePaint.setColor(mContext.getResources().getColor(R.color.white));
+        whitePaint.setStyle(Paint.Style.FILL);
     }
 
     @Override
@@ -95,11 +116,11 @@ public class CustomChartView extends View {
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
 
         if (MeasureSpec.EXACTLY == heightMode){
-            int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-            viewHeight = heightSize;
+            viewHeight = MeasureSpec.getSize(heightMeasureSpec);
         } else {
             viewHeight = (int)(screenWidth * 0.8);
         }
+        viewHeight += CommonUtil.dp2px(mContext, 10);
         fetalAreaHeight = (float) (viewHeight * 0.64); // 胎心曲线区域总共占高度的0.64
         fetalLatticeHeight = fetalAreaHeight / fetalLatticeNum; // 胎心曲线区域垂直方向每个格子的高度
         tocoAreaHeight = (float) (viewHeight * 0.28); // 宫缩曲线区域总共占高度的0.28
@@ -107,14 +128,65 @@ public class CustomChartView extends View {
         tocoStartY = (fetalLatticeNum + 2) * fetalLatticeHeight;    // 宫缩区域和胎心区域，中间间隔高度为2个fetalLatticeHeight，胎心区域开始的高度
         // 胎心区域垂直方向值为60-210，所以求出每个点所占高度
         fetalYPointHeight = fetalAreaHeight / 160;
+        // 背景为白色，这里准备绘制一个白色的矩形
+        bgRect = new Rect(0, 0, screenWidth, viewHeight);
         setMeasuredDimension(screenWidth, viewHeight);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        drawBaseChart(canvas);
-        drawGreenArea(canvas);
+        canvas.drawRect(bgRect, whitePaint);
+        drawBaseChart(canvas);  // 画曲线图背景
+        drawGreenArea(canvas);  // 画绿色区域背景
+        drawCoordinate(canvas); // 画坐标文字
+    }
+
+    // 画坐标文字
+    private void drawCoordinate(Canvas canvas) {
+        canvas.save();
+        // 胎心区域坐标文字
+        for (int i = 0; i <= fetalLatticeNum; i+=3) {
+            for(float j = twentySecWidth; j <= screenWidth; j+= 8 * twentySecWidth){
+                // 先画一个白色背景的矩形，这里+4 -4是为了矩形的高度更窄
+                Rect fetalRect;
+                if (i == 0){    // 第一个坐标，是在横线下方的
+                    fetalRect = new Rect((int)(j - coorWidth/2), (int)(i*fetalLatticeHeight), (int)(j + coorWidth/2), (int)(i*fetalLatticeHeight + coorHeight-4));
+                } else {
+                    fetalRect = new Rect((int)(j - coorWidth/2), (int)(i*fetalLatticeHeight - coorHeight/2 + 4), (int)(j + coorWidth/2), (int)(i*fetalLatticeHeight + coorHeight/2 - 4));
+                }
+                if (i >= 5 && i<= 10){  // 绿色区域，背景是绿色，直接画绿色矩形，会和背景重合，颜色会变深，所以先画个白底，再画绿色
+                    canvas.drawRect(fetalRect, whitePaint);
+                    canvas.drawRect(fetalRect, greenAreaPaint);
+                } else {
+                    canvas.drawRect(fetalRect, whitePaint);
+                }
+                // 再画坐标文字
+                // 这里要注意y坐标的计算，因为在文字的坐标系里面，坐标都是以文字基线为坐标轴X轴的，基线以上为负数，基线以下为正数，所以top是负数，bottom是正数
+                canvas.drawText(String.valueOf(fetalMax), fetalRect.centerX(), fetalRect.centerY() - fontMetrics.bottom/2 - fontMetrics.top/2, linePaintT);
+            }
+            fetalMax-=30;
+        }
+        // 宫缩区域坐标文字
+        for (float i = tocoStartY; i < viewHeight; i+=(tocoLatticeHeight * 2)) {
+            for(float j = twentySecWidth; j <= screenWidth; j+= 8 * twentySecWidth) {
+                Rect tocoRect = new Rect((int)(j - coorWidth/2), (int)(i - coorHeight/2 + 4), (int)(j + coorWidth/2), (int)(i + coorHeight/2 - 4));
+                canvas.drawRect(tocoRect, whitePaint);
+                canvas.drawText(String.valueOf(tocoMax), tocoRect.centerX(), tocoRect.centerY() - fontMetrics.bottom/2 - fontMetrics.top/2, linePaintT);
+            }
+            tocoMax-=20;
+        }
+        // 画时间坐标文字
+        for (int i = 0; i <= 12; i++) {
+            if (i != 1 && i % 3 == 1){  // 0分钟的坐标不画
+                canvas.drawText(String.valueOf(startTime), i * twentySecWidth - coorWidth/2, fetalAreaHeight + fetalLatticeHeight, linePaintT);
+                startTime+=1;
+            }
+        }
+        fetalMax = 210;
+        tocoMax = 100;
+        startTime = 1;
+        canvas.restore();
     }
 
     // 画绿色背景区域
@@ -158,4 +230,13 @@ public class CustomChartView extends View {
         canvas.restore();
     }
 
+    // 获取文字的高度
+    private float getTextHeight(Paint paint, String str) {
+        float height = 0;
+        if (null != paint && !TextUtils.isEmpty(str)) {
+            Paint.FontMetrics fm = paint.getFontMetrics();
+            height = fm.descent - fm.ascent;
+        }
+        return height;
+    }
 }
