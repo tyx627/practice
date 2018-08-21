@@ -8,8 +8,11 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
+import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
+import android.view.ViewConfiguration;
+import android.widget.Scroller;
 
 import com.tyx.mypractice.R;
 import com.tyx.mypractice.model.fetalmonitor.TimeData;
@@ -20,10 +23,12 @@ import com.tyx.mypractice.util.CommonUtil;
  */
 public class CustomChartView extends View {
 
-    private static final int fetalLatticeNum = 16;  // 胎心曲线区域，垂直方向格子的个数
-    private static final int tocoLatticeNum = 10;   // 宫缩曲线区域，垂直方向格子的个数
+    private static final int FETALLATTICENUM = 16;  // 胎心曲线区域，垂直方向格子的个数
+    private static final int TOCOLATTICENUM = 10;   // 宫缩曲线区域，垂直方向格子的个数
+    private static final int MINSINONESCREEN = 4;  // 一屏幕显示多少分钟的数据
 
     private Context mContext;
+    private Scroller mScroller;
     private Paint linePaintW;   // 画线的大小有差异，这是稍微宽一点的画笔
     private Paint linePaintN;   // 画线的大小有差异，这是稍微细一点的画笔
     private Paint linePaintT;   // 用于写文字刻度的笔
@@ -34,6 +39,7 @@ public class CustomChartView extends View {
     private Rect bgRect;    // 整个view的背景，白色的矩形
     private int screenWidth;    // 屏幕宽度
     private int viewHeight;   // 控件高度
+    private int viewWidth;      // 整个图表的宽度，目前的方案是 screenWidth <= viewWidth <= 3*screenWidth，因为最多缓存前后两个屏幕宽度
     private int chartHeight;    // 图表的高度，因为图表上下要留一点空白位置，所以这个高度和控件高度是不一致的
     private float oneMinWidth;    // 1分钟的宽度
     private float twentySecWidth; // 20秒的宽度
@@ -55,11 +61,6 @@ public class CustomChartView extends View {
     private int tenDpHeight;    // 10dp的高度，单位为px
 
     private TimeData[] datas;   // 曲线的数据
-    private int lastRate;   // 上一个胎心值
-    private int currRate;   // 当前的胎心值
-    private int lastToco;   // 上一个宫缩值
-    private int currToco;   // 当前的宫缩值
-    private int status1;
 
     public CustomChartView(Context context) {
         this(context, null);
@@ -72,6 +73,8 @@ public class CustomChartView extends View {
     public CustomChartView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mContext = context;
+        mScroller = new Scroller(context);
+        viewConfiguration = ViewConfiguration.get(context);
         initView();
     }
 
@@ -81,9 +84,11 @@ public class CustomChartView extends View {
         tenDpHeight = CommonUtil.dp2px(mContext, 10);
         DisplayMetrics dm = getResources().getDisplayMetrics();
         screenWidth = dm.widthPixels;
-        oneMinWidth = screenWidth / 4;  // 一屏幕显示4分钟数据
+        viewWidth = screenWidth;
+        oneMinWidth = screenWidth / MINSINONESCREEN;  // 一屏幕显示MINSINTONESCREEN分钟数据，求一分钟数据的宽度
         twentySecWidth = oneMinWidth / 3;   // 一分钟数据分三个小格
-        onePointWidth = (float) (screenWidth / 480 + 0.5);  // 一屏幕显示960个数据，一秒钟画2个数据,4 * 60 * 2 = 480
+//        onePointWidth = (float) (screenWidth / MINSINONESCREEN / 60 / 2 + 0.5);  // 一屏幕显示480个数据，一秒钟画2个数据,4 * 60 * 2 = 480 // 这个误差太大
+        onePointWidth = twentySecWidth / 40;  // 20秒画40个数据
         initPaint();
         // 获取坐标文字的长宽
         fontMetrics = linePaintT.getFontMetrics();
@@ -129,7 +134,6 @@ public class CustomChartView extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-
         if (MeasureSpec.EXACTLY == heightMode){
             viewHeight = MeasureSpec.getSize(heightMeasureSpec);
         } else {
@@ -137,17 +141,22 @@ public class CustomChartView extends View {
         }
         chartHeight = viewHeight - CommonUtil.dp2px(mContext, 20);
         fetalAreaHeight = (float) (chartHeight * 0.64); // 胎心曲线区域总共占高度的0.64
-        fetalLatticeHeight = fetalAreaHeight / fetalLatticeNum; // 胎心曲线区域垂直方向每个格子的高度
+        fetalLatticeHeight = fetalAreaHeight / FETALLATTICENUM; // 胎心曲线区域垂直方向每个格子的高度
         tocoAreaHeight = (float) (chartHeight * 0.28); // 宫缩曲线区域总共占高度的0.28
-        tocoLatticeHeight = tocoAreaHeight / tocoLatticeNum;    // 宫缩曲线区域垂直方向每个格子高度
-        tocoStartY = (fetalLatticeNum + 2) * fetalLatticeHeight;    // 宫缩区域和胎心区域，中间间隔高度为2个fetalLatticeHeight，胎心区域开始的高度
+        tocoLatticeHeight = tocoAreaHeight / TOCOLATTICENUM;    // 宫缩曲线区域垂直方向每个格子高度
+        tocoStartY = (FETALLATTICENUM + 2) * fetalLatticeHeight;    // 宫缩区域和胎心区域，中间间隔高度为2个fetalLatticeHeight，胎心区域开始的高度
         // 胎心区域垂直方向值为60-210，所以求出每个点所占高度
         fetalYPointHeight = fetalAreaHeight / 160;
         // 宫缩区域垂直方向值为0-100，所以求出每个点所占高度
         tocoYPointHeight = tocoAreaHeight / 100;
         // 背景为白色，这里准备绘制一个白色的矩形
-        bgRect = new Rect(0, 0, screenWidth, viewHeight);
-        setMeasuredDimension(screenWidth, viewHeight);
+        bgRect = new Rect(0, 0, viewWidth, viewHeight);
+//        if (MeasureSpec.getSize(widthMeasureSpec) < screenWidth){
+//            setMeasuredDimension(screenWidth, viewHeight);
+//        } else {
+//            setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), viewHeight);
+//        }
+        setMeasuredDimension(viewWidth, viewHeight);
     }
 
     @Override
@@ -167,11 +176,11 @@ public class CustomChartView extends View {
             canvas.translate(0, tenDpHeight);
 //            Path path = new Path();
             for (int i = 1; i < datas.length; i++) {
-                lastRate = datas[i - 1].heartRate;
-                currRate = datas[i].heartRate;
-                lastToco = datas[i - 1].tocoWave;
-                currToco = datas[i].tocoWave;
-                status1 = datas[i].status1;
+                int lastRate = datas[i - 1].heartRate;
+                int currRate = datas[i].heartRate;
+                int lastToco = datas[i - 1].tocoWave;
+                int currToco = datas[i].tocoWave;
+                int status1 = datas[i].status1;
                 // 画胎心曲线
                 if (currRate <= 210 && currRate >= 50) {    // 胎心范围值
                     if (lastRate <= 210 && lastRate >= 50){ // 没有断线
@@ -181,7 +190,6 @@ public class CustomChartView extends View {
 //                            path.moveTo(twentySecWidth, (210 - currRate) * fetalYPointHeight);
                     }
                 }
-                Log.d("drawCurve", "index : " + i + " currToco : " + currToco);
                 // 画宫缩曲线
                 if (currToco >= 0 && currToco <= 100){  // 宫缩范围值
                     if (lastToco <= 100 && lastToco >= 0){
@@ -199,8 +207,8 @@ public class CustomChartView extends View {
         canvas.save();
         canvas.translate(0, tenDpHeight);
         // 胎心区域坐标文字
-        for (int i = 0; i <= fetalLatticeNum; i+=3) {
-            for(float j = twentySecWidth; j <= screenWidth; j+= 8 * twentySecWidth){
+        for (int i = 0; i <= FETALLATTICENUM; i+=3) {
+            for(float j = twentySecWidth; j <= viewWidth; j+= 8 * twentySecWidth){
                 // 先画一个白色背景的矩形，这里+4 -4是为了矩形的高度更窄
                 Rect fetalRect;
 //                if (i == 0){    // 第一个坐标，是在横线下方的
@@ -222,7 +230,7 @@ public class CustomChartView extends View {
         }
         // 宫缩区域坐标文字
         for (float i = 0; i <= 10; i+=2) {
-            for(float j = twentySecWidth; j <= screenWidth; j+= 8 * twentySecWidth) {
+            for(float j = twentySecWidth; j <= viewWidth; j+= 8 * twentySecWidth) {
                 Rect tocoRect = new Rect((int)(j - coorWidth/2), (int)(tocoStartY + i*tocoLatticeHeight - coorHeight/2 + 4), (int)(j + coorWidth/2), (int)(tocoStartY + i*tocoLatticeHeight + coorHeight/2 - 4));
                 canvas.drawRect(tocoRect, whitePaint);
                 canvas.drawText(String.valueOf(tocoMax), tocoRect.centerX(), tocoRect.centerY() - fontMetrics.bottom/2 - fontMetrics.top/2, linePaintT);
@@ -230,12 +238,14 @@ public class CustomChartView extends View {
             tocoMax-=20;
         }
         // 画时间坐标文字
-        for (int i = 0; i <= 12; i++) {
+        for (int i = 0; i <= viewWidth/twentySecWidth; i++) {
             if (i != 1 && i % 3 == 1){  // 0分钟的坐标不画
-                canvas.drawText(startTime + "'", i * twentySecWidth, fetalAreaHeight + fetalLatticeHeight + coorHeight/2, linePaintT);
+                // 胎心区域和宫缩区域之间的间隔，高度是2*fetalLatticeHeight，这里fetalAreaHeight + fetalLatticeHeight + coorHeight/2是为了让时间坐标文字高度居中
+                canvas.drawText(startTime + "'", i * twentySecWidth, fetalAreaHeight + fetalLatticeHeight, linePaintT);
                 startTime+=1;
             }
         }
+        // 重新初始化这些值
         fetalMax = 210;
         tocoMax = 100;
         startTime = 1;
@@ -247,7 +257,7 @@ public class CustomChartView extends View {
         canvas.save();
         canvas.translate(0, tenDpHeight);
         // 绿色区域是110-160
-        Rect rect = new Rect(0, (int)(fetalYPointHeight * 50), screenWidth, (int)(fetalYPointHeight * 100));
+        Rect rect = new Rect(0, (int)(fetalYPointHeight * 50), viewWidth, (int)(fetalYPointHeight * 100));
         canvas.drawRect(rect, greenAreaPaint);
         canvas.restore();
     }
@@ -257,23 +267,23 @@ public class CustomChartView extends View {
         canvas.save();
         canvas.translate(0, tenDpHeight);
         // 先画胎心横向区域背景
-        for (int i = 0; i <= fetalLatticeNum; i++) {
+        for (int i = 0; i <= FETALLATTICENUM; i++) {
             if (i % 3 != 0){
-                canvas.drawLine(0, i * fetalLatticeHeight, screenWidth, i * fetalLatticeHeight, linePaintN);
+                canvas.drawLine(0, i * fetalLatticeHeight, viewWidth, i * fetalLatticeHeight, linePaintN);
             } else {
-                canvas.drawLine(0, i * fetalLatticeHeight, screenWidth, i * fetalLatticeHeight, linePaintW);
+                canvas.drawLine(0, i * fetalLatticeHeight, viewWidth, i * fetalLatticeHeight, linePaintW);
             }
         }
         // 画宫缩横向区域背景
-        for (int i = 0; i <= tocoLatticeNum; i++) {
+        for (int i = 0; i <= TOCOLATTICENUM; i++) {
             if (i % 2 == 0) {
-                canvas.drawLine(0, i * tocoLatticeHeight + tocoStartY, screenWidth, i * tocoLatticeHeight + tocoStartY, linePaintW);
+                canvas.drawLine(0, i * tocoLatticeHeight + tocoStartY, viewWidth, i * tocoLatticeHeight + tocoStartY, linePaintW);
             } else {
-                canvas.drawLine(0, i * tocoLatticeHeight + tocoStartY, screenWidth, i * tocoLatticeHeight + tocoStartY, linePaintN);
+                canvas.drawLine(0, i * tocoLatticeHeight + tocoStartY, viewWidth, i * tocoLatticeHeight + tocoStartY, linePaintN);
             }
         }
         // 垂直区域背景
-        for (int i = 0; i <= 12; i++) {
+        for (int i = 0; i <= viewWidth/twentySecWidth; i++) {
             if (i % 3 != 1){
                 canvas.drawLine(i * twentySecWidth, 0, i * twentySecWidth, fetalAreaHeight, linePaintN);
                 canvas.drawLine(i * twentySecWidth, tocoStartY, i * twentySecWidth, tocoStartY + tocoAreaHeight, linePaintN);
@@ -284,6 +294,58 @@ public class CustomChartView extends View {
         }
         canvas.restore();
     }
+
+    private int mLastX;
+    private int mCurrX;
+    private VelocityTracker velocityTracker;
+    private ViewConfiguration viewConfiguration;
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        getParent().requestDisallowInterceptTouchEvent(true);
+        if (velocityTracker == null) {
+            velocityTracker = VelocityTracker.obtain();
+        }
+        velocityTracker.addMovement(event);
+        switch (event.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                if (!mScroller.isFinished()){
+                    mScroller.abortAnimation();
+                }
+                mLastX = mCurrX = (int) event.getX();
+                return true;
+
+            case MotionEvent.ACTION_MOVE:
+                mCurrX = (int) event.getX();
+                int deltaX = mLastX - mCurrX;
+                scrollBy(deltaX, 0);
+                mLastX = mCurrX;
+                return true;
+
+            case MotionEvent.ACTION_UP:
+                mCurrX = (int) event.getX();
+//                velocityTracker.computeCurrentVelocity(1000);  //计算1秒内滑动过多少像素
+//                int xVelocity = (int) velocityTracker.getXVelocity();
+//                if (Math.abs(xVelocity) > viewConfiguration.getScaledMinimumFlingVelocity()) {  //滑动速度可被判定为抛动
+//                    mScroller.fling(getScrollX(), 0, -xVelocity, 0, 0, viewWidth - screenWidth, 0, 0);
+//                }
+                break;
+
+            default:
+                break;
+        }
+
+        return super.onTouchEvent(event);
+    }
+
+//    @Override
+//    public void computeScroll() {
+//        super.computeScroll();
+//        if (mScroller.computeScrollOffset()){
+//            scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
+//            invalidate();
+//        }
+//    }
 
     // 获取文字的高度
     private float getTextHeight(Paint paint, String str) {
@@ -301,6 +363,17 @@ public class CustomChartView extends View {
      */
     public void setDatas(TimeData[] datas){
         this.datas = datas;
+        // 根据数据量的大小来判断图表宽度
+        // MINSINTONESCREEN * 60 * 2，一秒钟画2个数据，这里是一屏幕宽度要展示的数据量
+//        if (datas.length <= 0 || datas.length <= MINSINONESCREEN * 60 * 2){
+//            viewWidth = screenWidth;
+//        } else if (datas.length <= 2 * MINSINONESCREEN * 60 * 2){   // 数据量少于等于两屏幕
+//            viewWidth = 2 * screenWidth;
+//        } else {
+//            viewWidth = 3 * screenWidth;    // 这里是想要只画包括前后共3屏幕的图，节省一点资源，但是这样子的话，需要判断时候要重新画图？
+//        }
+        viewWidth = screenWidth + (datas.length / (MINSINONESCREEN * 60 * 2) * screenWidth);
+        requestLayout();
         invalidate();
     }
 }
