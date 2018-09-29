@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -302,6 +303,7 @@ public class CustomChartView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        float scrollX = getScrollX();
         getParent().requestDisallowInterceptTouchEvent(true);
         if (velocityTracker == null) {
             velocityTracker = VelocityTracker.obtain();
@@ -318,7 +320,11 @@ public class CustomChartView extends View {
             case MotionEvent.ACTION_MOVE:
                 mCurrX = (int) event.getX();
                 int deltaX = mLastX - mCurrX;
-                scrollBy(deltaX, 0);
+                Log.d("onTouchEvent", "scrollX - deltaX : " + (scrollX - deltaX));
+                Log.d("onTouchEvent", "scrollX + deltaX : " + (scrollX + deltaX));
+                if (scrollX + deltaX > 0 && (scrollX + deltaX) <= (viewWidth - screenWidth)) {
+                    scrollBy(deltaX, 0);
+                }
                 mLastX = mCurrX;
                 return true;
 
@@ -372,7 +378,8 @@ public class CustomChartView extends View {
 //        } else {
 //            viewWidth = 3 * screenWidth;    // 这里是想要只画包括前后共3屏幕的图，节省一点资源，但是这样子的话，需要判断时候要重新画图？
 //        }
-        viewWidth = screenWidth + (datas.length / (MINSINONESCREEN * 60 * 2) * screenWidth);
+//        viewWidth = screenWidth + (datas.length / (MINSINONESCREEN * 60 * 2) * screenWidth);
+        viewWidth = (int)(onePointWidth * datas.length + screenWidth/2);
         requestLayout();
         invalidate();
     }
