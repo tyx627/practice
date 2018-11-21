@@ -22,4 +22,13 @@
         <item name="android:textColor">#ff4500</item>
     </style>
 
+    <declare-styleable name="ProgressColors">
+        <!-- 阴影的宽度 -->
+        <attr name="shadowWidth" format="dimension"/>
+        <!-- 阴影的颜色 -->
+        <attr name="shadowColor" format="color"/>
+        <!-- 进度条的宽度 -->
+        <attr name="progressWidth" format="dimension"/>
+    </declare-styleable>
+
 </resources>

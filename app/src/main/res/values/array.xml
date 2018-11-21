@@ -11,7 +11,7 @@
         <item>@string/video_player</item>
         <item>@string/bluetooth_scan_view</item>
         <item>@string/custom_chart</item>
-        <item>Demo9</item>
+        <item>@string/progress_with_colors</item>
         <item>Demo10</item>
     </string-array>
 

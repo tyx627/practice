@@ -76,6 +76,8 @@ public class MainActivity extends BaseActivity implements CustomDialog.DialogCli
                 case 7:
                     goActivity(CustomChartActivity.class);
                     break;
+                case 8:
+                    goActivity(ProgressWithColorsActivity.class);
                 default:
                     break;
             }
