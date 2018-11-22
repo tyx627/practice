@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.Build;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -24,6 +25,14 @@ public abstract class BaseProgressWithColors extends View {
      * 选中区域边框的画笔
      */
     private Paint selecetdPaint;
+    /**
+     * 画游标白色边框的画笔
+     */
+    private Paint cursorPaint;
+    /**
+     * 画文字的画笔
+     */
+    private Paint textPaint;
     /**
      * 整个控件的宽度
      */
@@ -53,6 +62,10 @@ public abstract class BaseProgressWithColors extends View {
      */
     private float areaWidth;
     /**
+     * 开始画文字的Y轴高度
+     */
+    private float txtBeginHeight;
+    /**
      * 当前进度
      */
     private float progress;
@@ -64,6 +77,18 @@ public abstract class BaseProgressWithColors extends View {
      * 2dp转换为px的宽度
      */
     private int twoDp;
+    /**
+     * 游标的外宽度，7dp
+     */
+    private int sevenDp;
+    /**
+     * 游标的内宽度，4dp
+     */
+    private int fourDp;
+    /**
+     * 文字高度
+     */
+    private float textHeight;
 
     public BaseProgressWithColors(Context context) {
         this(context, null);
@@ -86,12 +111,17 @@ public abstract class BaseProgressWithColors extends View {
     private void initView() {
         oneDp = CommonUtil.dp2px(getContext(), 1);
         twoDp = oneDp * 2;
+        sevenDp = CommonUtil.dp2px(getContext(), 7);
+        fourDp = CommonUtil.dp2px(getContext(), 4);
         initPaints();
         // 关闭硬件加速
         setLayerType(LAYER_TYPE_SOFTWARE, mPaint);
         // 初始化进度条颜色和文字
         mColors = setColors();
         mTexts = setTexts();
+        // 确定画文字的高度
+        // 暂定进度条下面间隔5dp处
+        txtBeginHeight = shadowWidth * 2 + progressWidth + CommonUtil.dp2px(getContext(), 5);
     }
 
     /**
@@ -103,7 +133,19 @@ public abstract class BaseProgressWithColors extends View {
         selecetdPaint.setColor(Color.WHITE);
         selecetdPaint.setStrokeWidth(twoDp);
         selecetdPaint.setStyle(Paint.Style.STROKE);
+        // 设置阴影
         selecetdPaint.setShadowLayer(shadowWidth, 1F, 1F, shadowColor);
+
+        cursorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        cursorPaint.setColor(Color.WHITE);
+        cursorPaint.setStrokeWidth(sevenDp);
+        cursorPaint.setStyle(Paint.Style.FILL);
+        cursorPaint.setStrokeCap(Paint.Cap.ROUND);
+
+        textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        textPaint.setColor(Color.parseColor("#666666"));
+        textPaint.setTextSize(CommonUtil.sp2px(getContext(), 10));
+        textPaint.setTextAlign(Paint.Align.CENTER);
     }
 
     @Override
@@ -123,12 +165,15 @@ public abstract class BaseProgressWithColors extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if (mColors.length > 0){
+            // 画进度条
             drawBackgroundProgress(canvas);
+            // 画文字
+            drawText(canvas);
         }
     }
 
     /**
-     * 画进度条背景
+     * 画进度条
      * @param canvas 画布
      */
     private void drawBackgroundProgress(Canvas canvas) {
@@ -148,32 +193,125 @@ public abstract class BaseProgressWithColors extends View {
                 if (areaNum == i){
                     // 第一段区域，左边是圆的，选中状态
                     drawFirstSelectedArea(canvas);
+                    drawCursor(canvas, i);
                 } else {
                     // 第一段区域，左边是圆的
                     drawFirstNormalArea(canvas);
-
                 }
             } else if (i == mColors.length - 1){
-                // 最后一段区域，右边是圆
-                // 先画线段，再画半圆
-                canvas.drawLine(areaWidth * i, shadowWidth + progressWidth/2, viewWidth - progressWidth/2, shadowWidth + progressWidth/2, mPaint);
-                // 画半圆
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    canvas.drawArc(viewWidth - progressWidth, shadowWidth, viewWidth, progressWidth + shadowWidth, 90F, -180F, true, mPaint);
+                // 最右侧的区域被选中
+                if (areaNum == i){
+                    drawLastSelectedArea(canvas, i);
+                    drawCursor(canvas, i);
                 } else {
-                    RectF rectF = new RectF(viewWidth - progressWidth, shadowWidth, viewWidth, progressWidth + shadowWidth);
-                    canvas.drawArc(rectF, 90F, -180F, true, mPaint);
+                    drawLastNormalArea(canvas, i);
                 }
             } else {
-                canvas.drawLine(areaWidth * i, shadowWidth + progressWidth/2, areaWidth * (i + 1), shadowWidth + progressWidth/2, mPaint);
+                // 中间区域被选中
+                if (areaNum == i){
+                    drawCenterSelectedArea(canvas, i);
+                    drawCursor(canvas, i);
+                } else {
+                    canvas.drawLine(areaWidth * i, shadowWidth + progressWidth/2, areaWidth * (i + 1), shadowWidth + progressWidth/2, mPaint);
+                }
             }
             mPaint.reset();
         }
     }
 
     /**
+     * 画文字
+     * @param canvas 画布
+     */
+    private void drawText(Canvas canvas) {
+        if (null == mTexts || mTexts.length <= 0){
+            return;
+        }
+        for (int i = 0; i < mTexts.length; i++) {
+            if (!TextUtils.isEmpty(mTexts[i])) {
+                // 文字的高度
+                textHeight = getTextHeight(textPaint, mTexts[i]);
+                // 文字显示在当前区域中间位置
+                canvas.drawText(mTexts[i], areaWidth * i + areaWidth/2, txtBeginHeight + textHeight, textPaint);
+            }
+        }
+    }
+
+    /**
+     * 画游标
+     * @param canvas 画布
+     * @param i 当前区域对应的颜色数组下标
+     */
+    private void drawCursor(Canvas canvas, int i){
+        // 游标总宽度7dp，高度 = 阴影高度 * 2 + 进度条高度；没有阴影，白色边框2dp，颜色和当前区域颜色一致
+        // 总体思路是先画白色圆头线段，然后用当前颜色再覆盖一条圆头线段
+        // 先画白色背景，因为线段的圆头要预留位置，如果从y=0开始，则上半部分的圆头不显示，所以要先预留圆头的位置，游标宽度的一半，多加1px是为了防止切边效果
+        // 同理，底部也要预留圆头位置，否则游标高度会超过整个进度条宽度
+        canvas.drawLine(progress, sevenDp/2 + 1, progress, shadowWidth * 2 + progressWidth - sevenDp/2 - 1, cursorPaint);
+        // 填充里面的颜色，因为边框是2dp，所以里面的宽度是 7 - 2 * 2 = 3dp，但是因为宽度为3dp的话，线段两端的圆头显示模糊，所以调为4
+        mPaint.setStrokeWidth(fourDp);
+        mPaint.setStrokeCap(Paint.Cap.ROUND);
+        canvas.drawLine(progress, sevenDp/2 , progress, shadowWidth * 2 + progressWidth - sevenDp/2, mPaint);
+    }
+
+    /**
+     * 画进度条中间区域，选中状态
+     * @param canvas 画布
+     * @param i 已经经过的区域个数
+     */
+    private void drawCenterSelectedArea(Canvas canvas, int i) {
+        // 画外面白色边框
+        canvas.drawRect(areaWidth * i + oneDp, shadowWidth, areaWidth * (i + 1) - oneDp, progressWidth + shadowWidth, selecetdPaint);
+        // 填充边框内部
+        canvas.drawRect(areaWidth * i + twoDp, shadowWidth + oneDp, areaWidth * (i + 1) - twoDp, progressWidth + shadowWidth - oneDp, mPaint);
+    }
+
+    /**
+     * 画进度条最后一个区域，选中状态
+     * @param canvas 画布
+     * @param i 已经经过的区域个数
+     */
+    private void drawLastSelectedArea(Canvas canvas, int i) {
+        // 整体先画外面的白色边框，然后再填充里面的部分
+        // 第一个区域左边是圆弧
+        // 选中效果的白边，厚度2dp，往内缩1dp，往外1dp
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // 画弧形边框
+            canvas.drawArc(viewWidth - progressWidth - shadowWidth, shadowWidth, viewWidth - shadowWidth, progressWidth + shadowWidth, 90F, -180F, false, selecetdPaint);
+            // 填充里面的弧形
+            canvas.drawArc(viewWidth - progressWidth - shadowWidth, shadowWidth + oneDp, viewWidth - shadowWidth - oneDp, progressWidth + shadowWidth - oneDp, 90F, -180F, true, mPaint);
+        } else {
+            RectF rectF = new RectF(viewWidth - progressWidth, shadowWidth, progressWidth, progressWidth + shadowWidth);
+            canvas.drawArc(rectF, 90F, -180F, false, selecetdPaint);
+            canvas.drawArc(new RectF(viewWidth - progressWidth - shadowWidth, shadowWidth + oneDp, viewWidth - shadowWidth - oneDp, progressWidth + shadowWidth - oneDp), 90F, -180F, true, mPaint);
+        }
+        // 画直线部分的边框
+        canvas.drawRect(areaWidth * i + oneDp, shadowWidth, viewWidth - progressWidth/2 - shadowWidth, progressWidth + shadowWidth, selecetdPaint);
+        // 填充里面的直线
+        canvas.drawRect(areaWidth * i + twoDp, shadowWidth + oneDp, viewWidth - progressWidth/2 - shadowWidth, progressWidth + shadowWidth - oneDp, mPaint);
+    }
+
+    /**
+     * 画进度条最后一个区域，非选中状态
+     * @param canvas 画布
+     * @param i 已经经过的区域个数
+     */
+    private void drawLastNormalArea(Canvas canvas, int i) {
+        // 最后一段区域，右边是圆
+        // 先画线段，再画半圆
+        canvas.drawLine(areaWidth * i, shadowWidth + progressWidth/2, viewWidth - progressWidth/2, shadowWidth + progressWidth/2, mPaint);
+        // 画半圆
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            canvas.drawArc(viewWidth - progressWidth, shadowWidth, viewWidth, progressWidth + shadowWidth, 90F, -180F, true, mPaint);
+        } else {
+            RectF rectF = new RectF(viewWidth - progressWidth, shadowWidth, viewWidth, progressWidth + shadowWidth);
+            canvas.drawArc(rectF, 90F, -180F, true, mPaint);
+        }
+    }
+
+    /**
      * 画进度条第一个区域，选中状态
-     * @param canvas
+     * @param canvas 画布
      */
     private void drawFirstSelectedArea(Canvas canvas) {
         // 整体先画外面的白色边框，然后再填充里面的部分
@@ -181,25 +319,24 @@ public abstract class BaseProgressWithColors extends View {
         // 选中效果的白边，厚度2dp，往内缩1dp，往外1dp
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             // 画弧形边框
+            // 要求弧形左边的阴影也要全部显示，所以left设置为shadowWidth；这里的progressWidth其实就是弧形的直径
             canvas.drawArc(shadowWidth, shadowWidth, progressWidth + shadowWidth, progressWidth + shadowWidth, 90F, 180F, false, selecetdPaint);
-            // 画直线部分的边框
-            canvas.drawRect(progressWidth/2 + oneDp + shadowWidth, shadowWidth, areaWidth - oneDp, progressWidth + shadowWidth, selecetdPaint);
             // 填充里面的弧形
             canvas.drawArc(oneDp + shadowWidth, shadowWidth + oneDp, progressWidth+ shadowWidth, progressWidth + shadowWidth - oneDp, 90F, 180F, true, mPaint);
-            // 填充里面的直线
-            canvas.drawRect(progressWidth/2  + shadowWidth, shadowWidth + oneDp, areaWidth - twoDp, progressWidth + shadowWidth - oneDp, mPaint);
         } else {
-            RectF rectF = new RectF(oneDp, shadowWidth - oneDp, progressWidth, progressWidth + shadowWidth + oneDp);
-            canvas.drawArc(rectF, -90F, 180F, false, selecetdPaint);
-            canvas.drawRect(new RectF(progressWidth/2 + oneDp, shadowWidth - oneDp, areaWidth - oneDp, progressWidth + shadowWidth + oneDp), selecetdPaint);
-            canvas.drawArc(new RectF(twoDp, shadowWidth + oneDp, progressWidth, progressWidth + shadowWidth - oneDp), 90F, 180F, true, mPaint);
-            canvas.drawRect(new RectF(progressWidth/2  + shadowWidth, shadowWidth + oneDp, areaWidth - twoDp, progressWidth + shadowWidth - oneDp), mPaint);
+            RectF rectF = new RectF(shadowWidth, shadowWidth, progressWidth + shadowWidth, progressWidth + shadowWidth);
+            canvas.drawArc(rectF, 90F, 180F, false, selecetdPaint);
+            canvas.drawArc(new RectF(oneDp + shadowWidth, shadowWidth + oneDp, progressWidth+ shadowWidth, progressWidth + shadowWidth - oneDp), 90F, 180F, true, mPaint);
         }
+        // 画直线部分的边框
+        canvas.drawRect(progressWidth/2 + oneDp + shadowWidth, shadowWidth, areaWidth - oneDp, progressWidth + shadowWidth, selecetdPaint);
+        // 填充里面的直线
+        canvas.drawRect(progressWidth/2  + shadowWidth, shadowWidth + oneDp, areaWidth - twoDp, progressWidth + shadowWidth - oneDp, mPaint);
     }
 
     /**
      * 画进度条第一个区域，正常状态，非选中
-     * @param canvas
+     * @param canvas 画布
      */
     private void drawFirstNormalArea(Canvas canvas) {
         // 第一个区域左边是圆弧
@@ -211,6 +348,21 @@ public abstract class BaseProgressWithColors extends View {
         }
         // 画线段
         canvas.drawLine(progressWidth/2, shadowWidth + progressWidth/2, areaWidth, shadowWidth + progressWidth/2, mPaint);
+    }
+
+    /**
+     * 获取文字的高度
+     * @param paint 画笔
+     * @param str 字符串
+     * @return 文字高度
+     */
+    private float getTextHeight(Paint paint, String str) {
+        float height = 0;
+        if (null != paint && !TextUtils.isEmpty(str)) {
+            Paint.FontMetrics fm = paint.getFontMetrics();
+            height = fm.descent - fm.ascent;
+        }
+        return height;
     }
 
     /**

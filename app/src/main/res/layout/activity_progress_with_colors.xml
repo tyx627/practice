@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#666666">
+    android:background="@color/white">
 
     <com.tyx.mypractice.util.view.ProgressWithColors
         android:layout_width="match_parent"
