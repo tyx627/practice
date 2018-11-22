@@ -13,7 +13,7 @@ public class ProgressWithColors extends BaseProgressWithColors {
 
     public ProgressWithColors(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        setProgress(500);
+        setProgress(900);
     }
 
     public ProgressWithColors(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
@@ -23,13 +23,13 @@ public class ProgressWithColors extends BaseProgressWithColors {
 
     @Override
     public String[] setColors() {
-        return new String[]{"#ff0000", "#00ff00", "#0000ff"};
+        return new String[]{"#6DE016", "#F7D42E", "#FFA715", "#FF7517", "#EB4F3C"};
 //        return new String[]{"#ff0000"};
     }
 
     @Override
     public String[] setTexts() {
-        return new String[]{"正常", "偏高", "超高"};
+        return new String[]{"正常", "正常偏高", "轻度", "中度", "重度"};
     }
 
 }

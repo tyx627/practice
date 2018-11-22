@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
 import android.os.Build;
 import android.support.annotation.Nullable;
@@ -291,14 +292,27 @@ public abstract class BaseProgressWithColors extends View {
             // 画弧形边框
             canvas.drawArc(viewWidth - progressWidth - shadowWidth, shadowWidth, viewWidth - shadowWidth, progressWidth + shadowWidth, 90F, -180F, false, selecetdPaint);
             // 填充里面的弧形
-            canvas.drawArc(viewWidth - progressWidth - shadowWidth, shadowWidth + oneDp, viewWidth - shadowWidth - oneDp, progressWidth + shadowWidth - oneDp, 90F, -180F, true, mPaint);
+            // 这里左边减去oneDp只是为了让两部分连接更紧密
+            canvas.drawArc(viewWidth - progressWidth - shadowWidth - oneDp, shadowWidth + oneDp, viewWidth - shadowWidth - oneDp, progressWidth + shadowWidth - oneDp, 90F, -180F, true, mPaint);
         } else {
-            RectF rectF = new RectF(viewWidth - progressWidth, shadowWidth, progressWidth, progressWidth + shadowWidth);
+            RectF rectF = new RectF(viewWidth - progressWidth - shadowWidth, shadowWidth, viewWidth - shadowWidth, progressWidth + shadowWidth);
             canvas.drawArc(rectF, 90F, -180F, false, selecetdPaint);
             canvas.drawArc(new RectF(viewWidth - progressWidth - shadowWidth, shadowWidth + oneDp, viewWidth - shadowWidth - oneDp, progressWidth + shadowWidth - oneDp), 90F, -180F, true, mPaint);
         }
         // 画直线部分的边框
-        canvas.drawRect(areaWidth * i + oneDp, shadowWidth, viewWidth - progressWidth/2 - shadowWidth, progressWidth + shadowWidth, selecetdPaint);
+        // 直接这样画矩形的话，右边框的阴影无法被覆盖，所以要换种方法实现，只画3条边
+//        canvas.drawRect(areaWidth * i + oneDp, shadowWidth, viewWidth - progressWidth/2 - shadowWidth, progressWidth + shadowWidth, selecetdPaint);
+        // 分别画矩形边框的三条线
+        Path path = new Path();
+        // 先移动到最右端
+        path.moveTo(viewWidth - progressWidth/2 - shadowWidth, shadowWidth);
+        // 上边框
+        path.lineTo(areaWidth * i + oneDp, shadowWidth);
+        // 左边框
+        path.lineTo(areaWidth * i + oneDp, progressWidth + shadowWidth);
+        // 下边框
+        path.lineTo(viewWidth - progressWidth/2 - shadowWidth, progressWidth + shadowWidth);
+        canvas.drawPath(path, selecetdPaint);
         // 填充里面的直线
         canvas.drawRect(areaWidth * i + twoDp, shadowWidth + oneDp, viewWidth - progressWidth/2 - shadowWidth, progressWidth + shadowWidth - oneDp, mPaint);
     }
@@ -332,16 +346,28 @@ public abstract class BaseProgressWithColors extends View {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             // 画弧形边框
             // 要求弧形左边的阴影也要全部显示，所以left设置为shadowWidth；这里的progressWidth其实就是弧形的直径
-            canvas.drawArc(shadowWidth, shadowWidth, progressWidth + shadowWidth, progressWidth + shadowWidth, 90F, 180F, false, selecetdPaint);
+            canvas.drawArc(shadowWidth, shadowWidth, progressWidth + shadowWidth + twoDp, progressWidth + shadowWidth, 90F, 180F, false, selecetdPaint);
             // 填充里面的弧形
-            canvas.drawArc(oneDp + shadowWidth, shadowWidth + oneDp, progressWidth+ shadowWidth, progressWidth + shadowWidth - oneDp, 90F, 180F, true, mPaint);
+            canvas.drawArc(oneDp + shadowWidth, shadowWidth + oneDp, progressWidth + shadowWidth, progressWidth + shadowWidth - oneDp, 90F, 180F, true, mPaint);
         } else {
-            RectF rectF = new RectF(shadowWidth, shadowWidth, progressWidth + shadowWidth, progressWidth + shadowWidth);
+            RectF rectF = new RectF(shadowWidth, shadowWidth, progressWidth + shadowWidth + twoDp, progressWidth + shadowWidth);
             canvas.drawArc(rectF, 90F, 180F, false, selecetdPaint);
-            canvas.drawArc(new RectF(oneDp + shadowWidth, shadowWidth + oneDp, progressWidth+ shadowWidth, progressWidth + shadowWidth - oneDp), 90F, 180F, true, mPaint);
+            canvas.drawArc(new RectF(oneDp + shadowWidth, shadowWidth + oneDp, progressWidth + shadowWidth, progressWidth + shadowWidth - oneDp), 90F, 180F, true, mPaint);
         }
         // 画直线部分的边框
-        canvas.drawRect(progressWidth/2 + oneDp + shadowWidth, shadowWidth, areaWidth - oneDp, progressWidth + shadowWidth, selecetdPaint);
+        // 直接这样画矩形的话，右边框的阴影无法被覆盖，所以要换种方法实现，只画3条边
+//        canvas.drawRect(progressWidth/2 + oneDp + shadowWidth, shadowWidth, areaWidth - oneDp, progressWidth + shadowWidth, selecetdPaint);
+        // 先画三条边框
+        Path path = new Path();
+        // 移动到左上角
+        path.moveTo(progressWidth/2 + oneDp + shadowWidth, shadowWidth);
+        // 上边框
+        path.lineTo(areaWidth - oneDp, shadowWidth);
+        // 右边框
+        path.lineTo(areaWidth - oneDp, progressWidth + shadowWidth);
+        // 下边框
+        path.lineTo(progressWidth/2 + oneDp + shadowWidth, progressWidth + shadowWidth);
+        canvas.drawPath(path, selecetdPaint);
         // 填充里面的直线
         canvas.drawRect(progressWidth/2  + shadowWidth, shadowWidth + oneDp, areaWidth - twoDp, progressWidth + shadowWidth - oneDp, mPaint);
     }
