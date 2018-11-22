@@ -15,6 +15,9 @@ import android.view.View;
 import com.tyx.mypractice.R;
 import com.tyx.mypractice.util.CommonUtil;
 
+/**
+ * @author tyx
+ */
 public abstract class BaseProgressWithColors extends View {
 
     /**
@@ -122,6 +125,8 @@ public abstract class BaseProgressWithColors extends View {
         // 确定画文字的高度
         // 暂定进度条下面间隔5dp处
         txtBeginHeight = shadowWidth * 2 + progressWidth + CommonUtil.dp2px(getContext(), 5);
+        // 文字的高度
+        textHeight = getTextHeight(textPaint, "字");
     }
 
     /**
@@ -151,6 +156,15 @@ public abstract class BaseProgressWithColors extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        int viewHeight;
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        if (MeasureSpec.EXACTLY == heightMode){
+            viewHeight = heightMeasureSpec;
+        } else {
+            // 没有指定特定高度，则高度为 ：阴影高度 * 2 + 进度条高度 + 与文字间隔5dp + 文字高度 + 2dp的间距，防止因为float强转int精度丢失而导致高度不够
+            viewHeight = (int) (shadowWidth * 2 + progressWidth + CommonUtil.dp2px(getContext(), 5) + textHeight + twoDp);
+        }
+        setMeasuredDimension(widthMeasureSpec, viewHeight);
     }
 
     @Override
@@ -229,8 +243,6 @@ public abstract class BaseProgressWithColors extends View {
         }
         for (int i = 0; i < mTexts.length; i++) {
             if (!TextUtils.isEmpty(mTexts[i])) {
-                // 文字的高度
-                textHeight = getTextHeight(textPaint, mTexts[i]);
                 // 文字显示在当前区域中间位置
                 canvas.drawText(mTexts[i], areaWidth * i + areaWidth/2, txtBeginHeight + textHeight, textPaint);
             }
