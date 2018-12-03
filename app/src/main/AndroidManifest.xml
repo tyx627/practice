@@ -22,21 +22,25 @@
         </activity>
 
         <activity android:name=".ui.activity.ShoppingCarPracActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"/>
         <activity android:name=".ui.activity.FallingSnowActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"/>
         <activity android:name=".ui.activity.CustomViewPagerActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"/>
         <activity android:name=".ui.activity.ArcAnimateActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"/>
         <activity android:name=".ui.activity.VideoPlayerActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"/>
         <activity android:name=".ui.activity.BlueToothScanActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:screenOrientation="portrait"></activity>
-        <activity android:name=".ui.activity.CustomChartActivity" />
-        <activity android:name=".ui.activity.ProgressWithColorsActivity" />
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ui.activity.CustomChartActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ui.activity.ProgressWithColorsActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ui.activity.HorizontalPickerActivity"
+            android:screenOrientation="portrait"/>
 
     </application>
 

@@ -12,7 +12,7 @@
         <item>@string/bluetooth_scan_view</item>
         <item>@string/custom_chart</item>
         <item>@string/progress_with_colors</item>
-        <item>Demo10</item>
+        <item>@string/horizontal_picker</item>
     </string-array>
 
     <!-- 底部tab的标题 -->

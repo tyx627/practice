@@ -78,6 +78,8 @@ public class MainActivity extends BaseActivity implements CustomDialog.DialogCli
                     break;
                 case 8:
                     goActivity(ProgressWithColorsActivity.class);
+                case 9:
+                    goActivity(HorizontalPickerActivity.class);
                 default:
                     break;
             }

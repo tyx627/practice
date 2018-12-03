@@ -22,6 +22,7 @@
         <item name="android:textColor">#ff4500</item>
     </style>
 
+    <!-- 带各种颜色的进度条 -->
     <declare-styleable name="ProgressColors">
         <!-- 阴影的宽度 -->
         <attr name="shadowWidth" format="dimension"/>
@@ -29,6 +30,16 @@
         <attr name="shadowColor" format="color"/>
         <!-- 进度条的宽度 -->
         <attr name="progressWidth" format="dimension"/>
+    </declare-styleable>
+    
+    <!-- 横向的选择器 -->
+    <declare-styleable name="HorizontalPickerView">
+        <!-- 选中的颜色 -->
+        <attr name="selectColor" format="color"/>
+        <!-- item之间的间隔 -->
+        <attr name="itemInterval" format="dimension"/>
+        <!-- item的字体大小 -->
+        <attr name="txtSize" format="dimension"/>
     </declare-styleable>
 
 </resources>

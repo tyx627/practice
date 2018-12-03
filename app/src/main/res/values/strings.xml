@@ -16,6 +16,7 @@
     <string name="bluetooth_scan_view">搜索蓝牙动画</string>
     <string name="custom_chart">曲线图</string>
     <string name="progress_with_colors">带各种颜色的进度条</string>
+    <string name="horizontal_picker">横向的日期选择器</string>
 
     <string name="back">返回</string>
     <string name="edit">编辑</string>
